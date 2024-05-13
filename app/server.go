@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 
 	// Uncomment this block to pass the first stage
@@ -30,6 +31,14 @@ func main() {
 		os.Exit(1)
 	}
 	defer conn.Close()
+
+	// Read the incoming HTTP request
+	request, err := io.ReadAll(conn)
+	if err != nil {
+		fmt.Println("Error reading request from connection: ", err.Error())
+	}
+
+	fmt.Println("Request:", string(request))
 
 	// Create a HTTP Response
 	response := createResponse().
