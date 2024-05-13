@@ -20,7 +20,7 @@ func main() {
 		fmt.Println("Failed to bind to port 4221")
 		os.Exit(1)
 	}
-	// defer l.Close()
+	defer l.Close()
 
 	// Accept a connection
 	conn, err := l.Accept()
@@ -28,7 +28,7 @@ func main() {
 		fmt.Println("Error accepting connection: ", err.Error())
 		os.Exit(1)
 	}
-	// defer conn.Close()
+	defer conn.Close()
 
 	// Read the incoming HTTP request
 	// reqMsg, err := io.ReadAll(conn)
