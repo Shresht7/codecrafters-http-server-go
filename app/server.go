@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"strings"
+	"net/http"
 
 	// Uncomment this block to pass the first stage
 	"net"
@@ -29,18 +29,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	// HTTP Response is made up of three parts, each separated by a [CRLF](https://developer.mozilla.org/en-US/docs/Glossary/CRLF) (`\r\n`):
-	// 1. Status line: `HTTP/1.1 200 OK`
-	// 2. One or more Headers: `Content-Type: text/html`
-	// 3. (Optional) Body: `<!DOCTYPE html><html><body><h1>Hello, World!</h1></body></html>`
-
-	// Create the HTTP response
-	statusLine := "HTTP/1.1 200 OK"
-	headers := ""
-	body := ""
-	CRLF := "\r\n"
-	response := strings.Join([]string{statusLine, headers, body}, CRLF)
+	// Create a HTTP Response
+	response := createResponse().
+		WithStatus(http.StatusOK)
 
 	// Respond to the connection
-	conn.Write([]byte(response))
+	conn.Write(response.Bytes())
 }
