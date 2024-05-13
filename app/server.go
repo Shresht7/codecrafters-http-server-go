@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"net/http"
 
 	// Uncomment this block to pass the first stage
 	"net"
@@ -22,7 +20,7 @@ func main() {
 		fmt.Println("Failed to bind to port 4221")
 		os.Exit(1)
 	}
-	defer l.Close()
+	// defer l.Close()
 
 	// Accept a connection
 	conn, err := l.Accept()
@@ -30,23 +28,39 @@ func main() {
 		fmt.Println("Error accepting connection: ", err.Error())
 		os.Exit(1)
 	}
-	defer conn.Close()
+	// defer conn.Close()
 
 	// Read the incoming HTTP request
-	reqMsg, err := io.ReadAll(conn)
+	// reqMsg, err := io.ReadAll(conn)
+	// Note: io.ReadAll() expects an EOF to stop reading
+	// The HTTP request here does not have an EOF, so this was throwing an error
+	// and causing the tests to fail.
+	// The following is a makeshift solution.
+	buf := make([]byte, 512)
+	_, err = conn.Read(buf)
 	if err != nil {
 		fmt.Println("Error reading request from connection: ", err.Error())
 	}
+	reqMsg := string(buf)
 
 	// Parse the HTTP Request
 	request := ParseRequest(string(reqMsg))
 
-	fmt.Println("Request Method:", request.method)
-	fmt.Println("Request Path:", request.path)
+	fmt.Printf("Request: %s --- %s\n", request.method, request.path)
 
-	// Create a HTTP Response
-	response := createResponse().
-		WithStatus(http.StatusOK)
+	// Create the HTTP Response
+	response := createResponse()
+
+	// If not the root path ...
+	if request.path != "/" {
+		// ... respond with 404 Not Found
+		response.WithStatus(404)
+	} else {
+		// ... otherwise, respond with 200 OK
+		response.WithStatus(200)
+	}
+
+	fmt.Println("Response:", response)
 
 	// Respond to the connection
 	conn.Write(response.Bytes())
