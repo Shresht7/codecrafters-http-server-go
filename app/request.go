@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"net"
 	"strings"
 )
 
@@ -12,11 +14,24 @@ type Request struct {
 }
 
 // Parse the incoming request
-func ParseRequest(msg string) *Request {
+func ParseRequest(conn net.Conn) *Request {
 	// Instantiate the Request
 	request := &Request{
 		HTTP: createHTTPMessage(),
 	}
+
+	// Read the incoming HTTP request
+	// reqMsg, err := io.ReadAll(conn)
+	// Note: io.ReadAll() expects an EOF to stop reading
+	// The HTTP request here does not have an EOF, so this was throwing an error
+	// and causing the tests to fail.
+	// The following is a makeshift solution.
+	buf := make([]byte, 512)
+	_, err := conn.Read(buf)
+	if err != nil {
+		fmt.Println("Error reading request from connection: ", err.Error())
+	}
+	msg := string(buf)
 
 	// Parse the incoming message
 	s := strings.Split(msg, request.separator)

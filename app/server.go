@@ -30,21 +30,8 @@ func main() {
 	}
 	defer conn.Close()
 
-	// Read the incoming HTTP request
-	// reqMsg, err := io.ReadAll(conn)
-	// Note: io.ReadAll() expects an EOF to stop reading
-	// The HTTP request here does not have an EOF, so this was throwing an error
-	// and causing the tests to fail.
-	// The following is a makeshift solution.
-	buf := make([]byte, 512)
-	_, err = conn.Read(buf)
-	if err != nil {
-		fmt.Println("Error reading request from connection: ", err.Error())
-	}
-	reqMsg := string(buf)
-
 	// Parse the HTTP Request
-	request := ParseRequest(string(reqMsg))
+	request := ParseRequest(conn)
 
 	fmt.Printf("Request: %s --- %s\n", request.method, request.path)
 
