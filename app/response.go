@@ -13,67 +13,24 @@ import (
 
 // Represents an HTTP response
 type Response struct {
-	protocol   string            // The protocol version (e.g. HTTP/1.1)
-	statusCode int               // The status code for the response
-	headers    map[string]string // The headers of the response
-	body       string            // The body of the response
-	separator  string            // The CRLF separator
+	*HTTP          // Embeds the HTTP message
+	statusCode int // The status code for the response
 }
 
 // Create a new HTTP Response
 func createResponse() *Response {
 	return &Response{
-		protocol:  "HTTP/1.1",
-		separator: CRLF,
+		HTTP:       createHTTPMessage(),
+		statusCode: http.StatusInternalServerError,
 	}
 }
 
 // Set the status code of the HTTP Response
 func (r *Response) WithStatus(code int) *Response {
 	r.statusCode = code
+	text := http.StatusText(code)
+	codeStr := strconv.Itoa(code)
+	statusMsg := strings.Join([]string{r.protocol, codeStr, text}, " ")
+	r.WithStartLine(statusMsg)
 	return r
-}
-
-// Set the headers of the HTTP Response
-func (r *Response) WithHeader(headers map[string]string) *Response {
-	r.headers = headers
-	return r
-}
-
-// Set the body of the HTTP Response
-func (r *Response) WithBody(b string) *Response {
-	r.body = b
-	return r
-}
-
-// Generate the string representation for the status line
-func (r *Response) statusLineStr() string {
-	code := strconv.Itoa(r.statusCode)
-	text := http.StatusText(r.statusCode)
-	return strings.Join([]string{r.protocol, code, text}, " ")
-}
-
-// Generate the string representation for the headers
-func (r *Response) headersStr() string {
-	// TODO: Implementation
-	return ""
-}
-
-// Generate the string representation of the body
-func (r *Response) bodyStr() string {
-	// TODO: Implementation
-	return ""
-}
-
-// The string representation of the HTTP Response
-func (r *Response) String() string {
-	statusLine := r.statusLineStr()
-	headers := r.headersStr()
-	body := r.bodyStr()
-	return (strings.Join([]string{statusLine, headers, body}, r.separator))
-}
-
-// The byte-array representation of the HTTP Response
-func (r *Response) Bytes() []byte {
-	return []byte(r.String())
 }
