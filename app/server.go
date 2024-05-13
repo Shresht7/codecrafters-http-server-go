@@ -51,17 +51,22 @@ func main() {
 	// Create the HTTP Response
 	response := createResponse()
 
-	// If not the root path ...
-	if request.path != "/" {
-		// ... respond with 404 Not Found
-		response.WithStatus(404)
-	} else {
-		// ... otherwise, respond with 200 OK
-		response.WithStatus(200)
-	}
+	// Route the request based on the requested path
+	_, response = route(request, response)
 
 	fmt.Println("Response:", response)
 
 	// Respond to the connection
 	conn.Write(response.Bytes())
+}
+
+// Route the request to the correct handler
+func route(req *Request, res *Response) (*Request, *Response) {
+	switch req.path {
+	case "/":
+		res.WithStatus(200)
+	default:
+		res.WithStatus(404)
+	}
+	return req, res
 }
