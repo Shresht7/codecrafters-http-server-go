@@ -41,7 +41,8 @@ func main() {
 	// Parse the HTTP Request
 	request := ParseRequest(string(reqMsg))
 
-	fmt.Println("Request:", request)
+	fmt.Println("Request Method:", request.method)
+	fmt.Println("Request Path:", request.path)
 
 	// Create a HTTP Response
 	response := createResponse().
