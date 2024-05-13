@@ -33,12 +33,15 @@ func main() {
 	defer conn.Close()
 
 	// Read the incoming HTTP request
-	request, err := io.ReadAll(conn)
+	reqMsg, err := io.ReadAll(conn)
 	if err != nil {
 		fmt.Println("Error reading request from connection: ", err.Error())
 	}
 
-	fmt.Println("Request:", string(request))
+	// Parse the HTTP Request
+	request := ParseRequest(string(reqMsg))
+
+	fmt.Println("Request:", request)
 
 	// Create a HTTP Response
 	response := createResponse().
