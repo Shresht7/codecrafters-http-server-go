@@ -15,17 +15,33 @@ func main() {
 	}
 	defer l.Close()
 
-	// Accept a connection
-	conn, err := l.Accept()
-	if err != nil {
-		fmt.Println("Error accepting connection: ", err.Error())
-		os.Exit(1)
+	// Accept connections
+	for {
+		conn, err := l.Accept()
+		if err != nil {
+			fmt.Println("Error accepting connection: ", err.Error())
+			continue
+		}
+
+		// Handle the connection in a new goroutine
+		// The loop then returns to accepting, so that
+		// multiple connections may be served concurrently
+		go handleConnection(conn)
 	}
+
+}
+
+// handleConnection handles an incoming connection.
+// It parses the HTTP request, creates an HTTP response, routes the request,
+// and responds to the connection.
+func handleConnection(conn net.Conn) {
+	// Close the connection when the function returns
 	defer conn.Close()
 
-	// Parse the HTTP Request
+	// Parse the HTTP Request from the connection
 	request := ParseRequest(conn)
 
+	// Print the request
 	fmt.Printf("Request:\n%+v\n", request)
 
 	// Create the HTTP Response
@@ -34,6 +50,7 @@ func main() {
 	// Route the request based on the requested path
 	route(request, response)
 
+	// Print the response
 	fmt.Println("Response:\n", response.String())
 
 	// Respond to the connection
