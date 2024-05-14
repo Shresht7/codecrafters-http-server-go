@@ -2,19 +2,11 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
-	// Uncomment this block to pass the first stage
 	"net"
 	"os"
 )
 
 func main() {
-	// You can use print statements as follows for debugging, they'll be visible when running tests.
-	fmt.Println("Logs from your program will appear here!")
-
-	// Uncomment this block to pass the first stage
-
 	// Bind to port 4221
 	l, err := net.Listen("tcp", "0.0.0.0:4221")
 	if err != nil {
@@ -46,18 +38,4 @@ func main() {
 
 	// Respond to the connection
 	conn.Write(response.Bytes())
-}
-
-// Route the request to the correct handler
-func route(req *Request, res *Response) {
-	switch {
-	case req.path == "/":
-		res.WithStatus(200)
-	case req.path == "/user-agent":
-		handleUserAgent(req, res)
-	case strings.HasPrefix(req.path, "/echo/"):
-		handleEcho(req, res)
-	default:
-		res.WithStatus(404)
-	}
 }
