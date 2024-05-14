@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	// Uncomment this block to pass the first stage
 	"net"
@@ -33,27 +34,28 @@ func main() {
 	// Parse the HTTP Request
 	request := ParseRequest(conn)
 
-	fmt.Printf("Request: %s --- %s\n", request.method, request.path)
+	fmt.Printf("Request: %+v\n", request)
 
 	// Create the HTTP Response
 	response := createResponse()
 
 	// Route the request based on the requested path
-	_, response = route(request, response)
+	route(request, response)
 
-	fmt.Println("Response:", response)
+	fmt.Println("Response:", response.String())
 
 	// Respond to the connection
 	conn.Write(response.Bytes())
 }
 
 // Route the request to the correct handler
-func route(req *Request, res *Response) (*Request, *Response) {
-	switch req.path {
-	case "/":
+func route(req *Request, res *Response) {
+	switch {
+	case req.path == "/":
 		res.WithStatus(200)
+	case strings.HasPrefix(req.path, "/echo/"):
+		handleEcho(req, res)
 	default:
 		res.WithStatus(404)
 	}
-	return req, res
 }
