@@ -233,3 +233,24 @@ func TestParseMessageWithNoBody(t *testing.T) {
 	}
 
 }
+
+// ------
+// STRING
+// ------
+
+func TestString(t *testing.T) {
+	http := createHTTPMessage().
+		WithStartLine("GET / HTTP/1.1").
+		WithHeaders(map[string]string{
+			"Content-Type":  "application/json",
+			"Authorization": "Bearer token",
+		}).
+		WithBody("{\"key\": \"value\"}")
+
+	expected := "GET / HTTP/1.1\r\nContent-Type: application/json\r\nAuthorization: Bearer token\r\n\r\n{\"key\": \"value\"}"
+
+	// Check if the string representation is correct
+	if http.String() != expected {
+		t.Errorf("Expected string\n%s,\n\nbut got\n%s", expected, http.String())
+	}
+}

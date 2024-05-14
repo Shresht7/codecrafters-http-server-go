@@ -79,7 +79,8 @@ func (r *HTTP) headersString() string {
 	for key, value := range r.headers {
 		fieldLines = append(fieldLines, fmt.Sprintf("%s: %s", key, value))
 	}
-	return strings.Join(fieldLines, r.separator)
+	// Add an extra CRLF to separate the headers from the body
+	return strings.Join(fieldLines, r.separator) + r.separator
 }
 
 // The string representation of the HTTP Request/Response
@@ -87,7 +88,6 @@ func (r *HTTP) String() string {
 	return strings.Join([]string{
 		r.startLine,
 		r.headersString(),
-		r.separator, // Add an extra CRLF to separate the headers from the body
 		r.body,
 	}, r.separator)
 }
