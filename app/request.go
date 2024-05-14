@@ -20,6 +20,32 @@ func ParseRequest(conn net.Conn) *Request {
 		HTTPMessage: createHTTPMessage(),
 	}
 
+	// Read the incoming connection and retrieve the request message
+	msg := readConnection(conn)
+
+	// Parse the incoming message
+	request.ParseMessage(msg)
+
+	// Parse the Method and Path from the request line
+	request.parseRequestLine()
+
+	return request
+}
+
+// Parse the Method and Path from the request line. See https://datatracker.ietf.org/doc/html/rfc9112#section-3
+func (r *Request) parseRequestLine() {
+	s := strings.Split(r.startLine, " ")
+	r.method = s[0]
+	r.path = s[1]
+	r.protocol = s[2]
+}
+
+// ----------------
+// HELPER FUNCTIONS
+// ----------------
+
+// Read the incoming connection and return the request message
+func readConnection(conn net.Conn) string {
 	// Read the incoming HTTP request
 	// reqMsg, err := io.ReadAll(conn)
 	// Note: io.ReadAll() expects an EOF to stop reading
@@ -33,20 +59,5 @@ func ParseRequest(conn net.Conn) *Request {
 		fmt.Println("Error reading request from connection: ", err.Error())
 	}
 	msg := string(buf)
-
-	// Parse the incoming message
-	s := strings.Split(msg, request.separator)
-	request.parseRequestLine(s[0])
-	// TODO: Parse request.headers
-	request.body = s[1]
-
-	return request
-}
-
-// Parse the Method and Path from the request line
-func (r *Request) parseRequestLine(line string) {
-	r.startLine = line
-	s := strings.Split(r.startLine, " ")
-	r.method = s[0]
-	r.path = s[1]
+	return msg
 }
