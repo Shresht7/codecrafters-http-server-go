@@ -2,6 +2,21 @@ package main
 
 import "testing"
 
+// ----------
+// START LINE
+// ----------
+
+func TestWithStartLine(t *testing.T) {
+	startLine := "GET / HTTP/1.1"
+
+	http := createHTTPMessage().WithStartLine(startLine)
+
+	// Check if the start line is set correctly
+	if http.startLine != startLine {
+		t.Errorf("Expected start line %s, but got %s", startLine, http.startLine)
+	}
+}
+
 // -------
 // HEADERS
 // -------

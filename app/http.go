@@ -30,9 +30,9 @@ func createHTTPMessage() *HTTP {
 	}
 }
 
-// Set the start-line of the HTTP Request/Response
-func (r *HTTP) WithStartLine(message string) *HTTP {
-	r.startLine = message
+// Set the start-line of the HTTP Request/Response Message
+func (r *HTTP) WithStartLine(startLine string) *HTTP {
+	r.startLine = startLine
 	return r
 }
 
