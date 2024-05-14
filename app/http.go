@@ -50,6 +50,29 @@ func (r *HTTP) WithBody(b string) *HTTP {
 	return r
 }
 
+// Parse the message as HTTP. See https://datatracker.ietf.org/doc/html/rfc9112#section-2.2
+func (r *HTTP) ParseMessage(message string) *HTTP {
+	// Split the message using the separator
+	s := strings.Split(message, r.separator)
+
+	// The first line is the start-line
+	r.startLine = s[0]
+
+	// Read each header field line into a hash table by field name until the empty line
+	for _, line := range s[1:] {
+		if line == "" {
+			break // Stop when an empty line is encountered
+		}
+		parts := strings.Split(line, ": ") // Split the line into field-value pairs
+		r.headers[parts[0]] = parts[1]
+	}
+
+	// The remainder of the message is the body
+	r.body = s[len(s)-1]
+
+	return r
+}
+
 // Generate a string representation of the Headers
 func (r *HTTP) headersString() string {
 	fieldLines := make([]string, 0, len(r.headers))
