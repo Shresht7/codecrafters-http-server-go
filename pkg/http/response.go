@@ -1,4 +1,4 @@
-package main
+package http
 
 import (
 	"net/http"
@@ -18,7 +18,7 @@ type Response struct {
 }
 
 // Create a new HTTP Response
-func createResponse() *Response {
+func CreateResponse() *Response {
 	return &Response{
 		HTTPMessage: createHTTPMessage(),
 		statusCode:  http.StatusInternalServerError,

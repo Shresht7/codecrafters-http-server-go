@@ -1,4 +1,4 @@
-package main
+package http
 
 import (
 	"fmt"
@@ -9,8 +9,8 @@ import (
 // Represents a HTTP Request
 type Request struct {
 	*HTTPMessage        // Embeds the HTTP message
-	method       string // HTTP Method (e.g. GET, POST, PATCH, DELETE)
-	path         string // Path of the requested resource
+	Method       string // HTTP Method (e.g. GET, POST, PATCH, DELETE)
+	Path         string // Path of the requested resource
 }
 
 // Parse the incoming request
@@ -34,9 +34,9 @@ func ParseRequest(conn net.Conn) *Request {
 
 // Parse the Method and Path from the request line. See https://datatracker.ietf.org/doc/html/rfc9112#section-3
 func (r *Request) parseRequestLine() {
-	s := strings.Fields(r.startLine)
-	r.method = s[0]
-	r.path = s[1]
+	s := strings.Fields(r.StartLine)
+	r.Method = s[0]
+	r.Path = s[1]
 	r.protocol = s[2]
 }
 

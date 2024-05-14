@@ -1,4 +1,4 @@
-package main
+package http
 
 import "testing"
 
@@ -27,9 +27,9 @@ func TestResponse_WithStatus(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			r := createResponse().WithStatus(tc.code)
-			if r.startLine != tc.expected {
-				t.Errorf("Expected start line to be %q, but got %q", tc.expected, r.startLine)
+			r := CreateResponse().WithStatus(tc.code)
+			if r.StartLine != tc.expected {
+				t.Errorf("Expected start line to be %q, but got %q", tc.expected, r.StartLine)
 			}
 		})
 	}

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net"
 	"os"
+
+	"github.com/codecrafters-io/http-server-starter-go/pkg/http"
 )
 
 func main() {
@@ -39,13 +41,13 @@ func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
 	// Parse the HTTP Request from the connection
-	request := ParseRequest(conn)
+	request := http.ParseRequest(conn)
 
 	// Print the request
 	fmt.Printf("Request:\n%+v\n", request)
 
 	// Create the HTTP Response
-	response := createResponse()
+	response := http.CreateResponse()
 
 	// Route the request based on the requested path
 	route(request, response)

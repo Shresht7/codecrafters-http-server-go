@@ -1,4 +1,4 @@
-package main
+package http
 
 import "testing"
 
@@ -36,12 +36,12 @@ func TestParseRequestLine(t *testing.T) {
 
 		req.parseRequestLine()
 
-		if req.method != tc.method {
-			t.Errorf("Expected method %s, but got %s", tc.method, req.method)
+		if req.Method != tc.method {
+			t.Errorf("Expected method %s, but got %s", tc.method, req.Method)
 		}
 
-		if req.path != tc.path {
-			t.Errorf("Expected path %s, but got %s", tc.path, req.path)
+		if req.Path != tc.path {
+			t.Errorf("Expected path %s, but got %s", tc.path, req.Path)
 		}
 
 		if req.protocol != tc.protocol {
