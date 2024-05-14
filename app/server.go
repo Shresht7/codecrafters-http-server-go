@@ -34,7 +34,7 @@ func main() {
 	// Parse the HTTP Request
 	request := ParseRequest(conn)
 
-	fmt.Printf("Request: %+v\n", request)
+	fmt.Printf("Request:\n%+v\n", request)
 
 	// Create the HTTP Response
 	response := createResponse()
@@ -42,7 +42,7 @@ func main() {
 	// Route the request based on the requested path
 	route(request, response)
 
-	fmt.Println("Response:", response.String())
+	fmt.Println("Response:\n", response.String())
 
 	// Respond to the connection
 	conn.Write(response.Bytes())
