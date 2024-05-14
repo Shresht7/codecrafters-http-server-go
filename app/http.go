@@ -25,6 +25,7 @@ type HTTP struct {
 func createHTTPMessage() *HTTP {
 	return &HTTP{
 		protocol:  "HTTP/1.1",
+		headers:   make(map[string]string),
 		separator: CRLF,
 	}
 }
@@ -35,9 +36,11 @@ func (r *HTTP) WithStartLine(message string) *HTTP {
 	return r
 }
 
-// Set the headers of the HTTP Request/Response
-func (r *HTTP) WithHeader(headers map[string]string) *HTTP {
-	r.headers = headers
+// Set the headers of the HTTP Request/Response Message
+func (r *HTTP) WithHeaders(headers map[string]string) *HTTP {
+	for key, value := range headers {
+		r.headers[key] = value
+	}
 	return r
 }
 
