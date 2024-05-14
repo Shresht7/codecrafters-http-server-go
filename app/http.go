@@ -5,7 +5,12 @@ import (
 	"strings"
 )
 
-// Represents a HTTP Request/Response
+// --------------------------------------------------------
+// REFERENCE: https://datatracker.ietf.org/doc/html/rfc9112
+// --------------------------------------------------------
+
+// Represents a HTTP Request/Response Message.
+// See https://datatracker.ietf.org/doc/html/rfc9112#section-2
 type HTTP struct {
 	protocol string // The protocol version (e.g. `HTTP/1.1`)
 
@@ -44,11 +49,11 @@ func (r *HTTP) WithBody(b string) *HTTP {
 
 // Generate a string representation of the Headers
 func (r *HTTP) headersString() string {
-	sb := strings.Builder{}
-	for k, v := range r.headers {
-		sb.WriteString(fmt.Sprintf("%s: %s", k, v))
+	fieldLines := make([]string, 0, len(r.headers))
+	for key, value := range r.headers {
+		fieldLines = append(fieldLines, fmt.Sprintf("%s: %s", key, value))
 	}
-	return sb.String()
+	return strings.Join(fieldLines, r.separator)
 }
 
 // The string representation of the HTTP Request/Response
@@ -56,6 +61,7 @@ func (r *HTTP) String() string {
 	return strings.Join([]string{
 		r.startLine,
 		r.headersString(),
+		r.separator, // Add an extra CRLF to separate the headers from the body
 		r.body,
 	}, r.separator)
 }
