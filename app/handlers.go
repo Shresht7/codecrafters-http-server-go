@@ -12,7 +12,7 @@ func handleEcho(req *Request, res *Response) {
 	}
 	res.
 		WithStatus(200).
-		WithHeader(map[string]string{
+		WithHeaders(map[string]string{
 			"Content-Type": "text/plain",
 		}).
 		WithBody(str)
