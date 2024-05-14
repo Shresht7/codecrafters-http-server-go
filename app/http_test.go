@@ -107,3 +107,18 @@ func TestWithHeadersOverride(t *testing.T) {
 		}
 	}
 }
+
+// ----
+// BODY
+// ----
+
+func TestWithBody(t *testing.T) {
+	body := "Hello, World!"
+
+	http := createHTTPMessage().WithBody(body)
+
+	// Check if the body is set correctly
+	if http.body != body {
+		t.Errorf("Expected body %s, but got %s", body, http.body)
+	}
+}

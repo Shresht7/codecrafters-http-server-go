@@ -44,7 +44,7 @@ func (r *HTTP) WithHeaders(headers map[string]string) *HTTP {
 	return r
 }
 
-// Set the body of the HTTP Request/Response
+// Set the body of the HTTP Request/Response Message
 func (r *HTTP) WithBody(b string) *HTTP {
 	r.body = b
 	return r
