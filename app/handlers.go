@@ -30,14 +30,26 @@ func handleEcho(req *Request, res *Response) {
 		WithBody(str)
 }
 
+// handleUserAgent handles the "/user-agent" endpoint.
+// It extracts the User-Agent header from the request headers and returns it as the response body.
+// If the User-Agent header is not found, it sets the response status to 404.
 func handleUserAgent(req *Request, res *Response) {
+	// Extract the User-Agent header from the request headers
+	userAgent, ok := req.headers["User-Agent"]
+
+	// If the User-Agent header is not found, set the response status to 404
+	if !ok {
+		res.WithStatus(404)
+		return
+	}
+
 	// Set the response status to 200, content type to "text/plain",
 	// content length to the length of the user agent, and body to the user agent
 	res.
 		WithStatus(200).
 		WithHeaders(map[string]string{
 			"Content-Type":   "text/plain",
-			"Content-Length": fmt.Sprintf("%d", len(req.headers["User-Agent"])),
+			"Content-Length": fmt.Sprintf("%d", len(userAgent)),
 		}).
-		WithBody(req.headers["User-Agent"])
+		WithBody(userAgent)
 }
