@@ -29,3 +29,15 @@ func handleEcho(req *Request, res *Response) {
 		}).
 		WithBody(str)
 }
+
+func handleUserAgent(req *Request, res *Response) {
+	// Set the response status to 200, content type to "text/plain",
+	// content length to the length of the user agent, and body to the user agent
+	res.
+		WithStatus(200).
+		WithHeaders(map[string]string{
+			"Content-Type":   "text/plain",
+			"Content-Length": fmt.Sprintf("%d", len(req.headers["User-Agent"])),
+		}).
+		WithBody(req.headers["User-Agent"])
+}
