@@ -8,16 +8,16 @@ import (
 
 // Represents a HTTP Request
 type Request struct {
-	*HTTP         // Embeds the HTTP message
-	method string // HTTP Method (e.g. GET, POST, PATCH, DELETE)
-	path   string // Path of the requested resource
+	*HTTPMessage        // Embeds the HTTP message
+	method       string // HTTP Method (e.g. GET, POST, PATCH, DELETE)
+	path         string // Path of the requested resource
 }
 
 // Parse the incoming request
 func ParseRequest(conn net.Conn) *Request {
 	// Instantiate the Request
 	request := &Request{
-		HTTP: createHTTPMessage(),
+		HTTPMessage: createHTTPMessage(),
 	}
 
 	// Read the incoming HTTP request

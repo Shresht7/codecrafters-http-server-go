@@ -9,9 +9,9 @@ import (
 // REFERENCE: https://datatracker.ietf.org/doc/html/rfc9112
 // --------------------------------------------------------
 
-// Represents a HTTP Request/Response Message.
+// Represents a HTTPMessage Request/Response Message.
 // See https://datatracker.ietf.org/doc/html/rfc9112#section-2
-type HTTP struct {
+type HTTPMessage struct {
 	protocol string // The protocol version (e.g. `HTTP/1.1`)
 
 	startLine string            // The first line of the HTTP Request/Response
@@ -22,8 +22,8 @@ type HTTP struct {
 }
 
 // Create a HTTP Request/Response
-func createHTTPMessage() *HTTP {
-	return &HTTP{
+func createHTTPMessage() *HTTPMessage {
+	return &HTTPMessage{
 		protocol:  "HTTP/1.1",
 		headers:   make(map[string]string),
 		separator: CRLF,
@@ -31,13 +31,13 @@ func createHTTPMessage() *HTTP {
 }
 
 // Set the start-line of the HTTP Request/Response Message
-func (r *HTTP) WithStartLine(startLine string) *HTTP {
+func (r *HTTPMessage) WithStartLine(startLine string) *HTTPMessage {
 	r.startLine = startLine
 	return r
 }
 
 // Set the headers of the HTTP Request/Response Message
-func (r *HTTP) WithHeaders(headers map[string]string) *HTTP {
+func (r *HTTPMessage) WithHeaders(headers map[string]string) *HTTPMessage {
 	for key, value := range headers {
 		r.headers[key] = value
 	}
@@ -45,13 +45,13 @@ func (r *HTTP) WithHeaders(headers map[string]string) *HTTP {
 }
 
 // Set the body of the HTTP Request/Response Message
-func (r *HTTP) WithBody(b string) *HTTP {
+func (r *HTTPMessage) WithBody(b string) *HTTPMessage {
 	r.body = b
 	return r
 }
 
 // Parse the message as HTTP. See https://datatracker.ietf.org/doc/html/rfc9112#section-2.2
-func (r *HTTP) ParseMessage(message string) *HTTP {
+func (r *HTTPMessage) ParseMessage(message string) *HTTPMessage {
 	// Split the message using the separator
 	s := strings.Split(message, r.separator)
 
@@ -74,7 +74,7 @@ func (r *HTTP) ParseMessage(message string) *HTTP {
 }
 
 // Generate a string representation of the Headers
-func (r *HTTP) headersString() string {
+func (r *HTTPMessage) headersString() string {
 	fieldLines := make([]string, 0, len(r.headers))
 	for key, value := range r.headers {
 		fieldLines = append(fieldLines, fmt.Sprintf("%s: %s", key, value))
@@ -84,7 +84,7 @@ func (r *HTTP) headersString() string {
 }
 
 // The string representation of the HTTP Request/Response
-func (r *HTTP) String() string {
+func (r *HTTPMessage) String() string {
 	return strings.Join([]string{
 		r.startLine,
 		r.headersString(),
@@ -93,6 +93,6 @@ func (r *HTTP) String() string {
 }
 
 // The byte-array representation of the HTTP Request/Response
-func (r *HTTP) Bytes() []byte {
+func (r *HTTPMessage) Bytes() []byte {
 	return []byte(r.String())
 }

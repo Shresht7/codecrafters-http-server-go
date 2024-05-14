@@ -13,15 +13,15 @@ import (
 
 // Represents an HTTP response
 type Response struct {
-	*HTTP          // Embeds the HTTP message
-	statusCode int // The status code for the response
+	*HTTPMessage     // Embeds the HTTP message
+	statusCode   int // The status code for the response
 }
 
 // Create a new HTTP Response
 func createResponse() *Response {
 	return &Response{
-		HTTP:       createHTTPMessage(),
-		statusCode: http.StatusInternalServerError,
+		HTTPMessage: createHTTPMessage(),
+		statusCode:  http.StatusInternalServerError,
 	}
 }
 
