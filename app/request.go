@@ -34,7 +34,7 @@ func ParseRequest(conn net.Conn) *Request {
 
 // Parse the Method and Path from the request line. See https://datatracker.ietf.org/doc/html/rfc9112#section-3
 func (r *Request) parseRequestLine() {
-	s := strings.Split(r.startLine, " ")
+	s := strings.Fields(r.startLine)
 	r.method = s[0]
 	r.path = s[1]
 	r.protocol = s[2]
