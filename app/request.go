@@ -26,6 +26,7 @@ func ParseRequest(conn net.Conn) *Request {
 	// The HTTP request here does not have an EOF, so this was throwing an error
 	// and causing the tests to fail.
 	// The following is a makeshift solution.
+	// TODO: Find a better way to do this
 	buf := make([]byte, 512)
 	_, err := conn.Read(buf)
 	if err != nil {
