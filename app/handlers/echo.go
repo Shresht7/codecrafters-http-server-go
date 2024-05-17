@@ -57,10 +57,14 @@ func GZip(str string) ([]byte, error) {
 
 	var buf bytes.Buffer       // Create a buffer to store the compressed data
 	gz := gzip.NewWriter(&buf) // Create a new gzip writer
-	defer gz.Close()           // Close the gzip writer when the function returns
 
 	// Write the string to the gzip writer
 	if _, err := gz.Write([]byte(str)); err != nil {
+		return nil, err
+	}
+
+	// Close the gzip writer
+	if err := gz.Close(); err != nil {
 		return nil, err
 	}
 
