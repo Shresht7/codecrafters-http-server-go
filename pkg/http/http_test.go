@@ -270,12 +270,20 @@ func TestString(t *testing.T) {
 	http := createHTTPMessage().
 		WithStartLine("GET / HTTP/1.1").
 		WithHeaders(map[string]string{
-			"Content-Type":  "application/json",
-			"Authorization": "Bearer token",
+			"Content-Type":   "application/json",
+			"Content-Length": "16",
+			"Authorization":  "Bearer token",
 		}).
 		WithBody("{\"key\": \"value\"}")
 
-	expected := "GET / HTTP/1.1\r\nContent-Type: application/json\r\nAuthorization: Bearer token\r\n\r\n{\"key\": \"value\"}"
+	expected := strings.Join([]string{
+		"GET / HTTP/1.1",
+		"Content-Type: application/json",
+		"Content-Length: 16",
+		"Authorization: Bearer token",
+		"",
+		"{\"key\": \"value\"}",
+	}, CRLF)
 
 	// Check if the string representation is correct
 	if http.String() != expected {
