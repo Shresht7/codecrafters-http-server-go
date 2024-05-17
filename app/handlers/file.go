@@ -26,6 +26,22 @@ func Files(req *http.Request, res *http.Response) {
 	// Construct the full file path
 	filePath := path.Join(directory, fileName)
 
+	// Route the request based on the HTTP method
+	switch req.Method {
+	case "GET":
+		GetFile(req, res, filePath)
+	default:
+		res.WithStatus(405) // Method Not Allowed
+	}
+}
+
+// -------
+// METHODS
+// -------
+
+// Handles the GET method for the /files/{name} endpoint
+func GetFile(req *http.Request, res *http.Response, filePath string) {
+
 	// Check if the file exists
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		res.WithStatus(404)
