@@ -46,7 +46,7 @@ func Echo(req *http.Request, res *http.Response) {
 		WithStatus(200).
 		WithHeaders(map[string]string{
 			"Content-Type":   "text/plain",
-			"Content-Length": fmt.Sprintf("%d", len(str)),
+			"Content-Length": fmt.Sprintf("%d", len(content)),
 		}).
 		WithBody(string(content))
 
