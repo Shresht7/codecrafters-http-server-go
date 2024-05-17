@@ -4,21 +4,22 @@ import (
 	"bytes"
 	"compress/gzip"
 	"fmt"
+	"net/http"
 	"strings"
 
-	"github.com/codecrafters-io/http-server-starter-go/pkg/http"
+	httpMessage "github.com/codecrafters-io/http-server-starter-go/pkg/http"
 )
 
 // Handles the `/echo/{str}` endpoint.
 // Extracts the string from the request path and returns it as the response body.
-func Echo(req *http.Request, res *http.Response) {
+func Echo(req *httpMessage.Request, res *httpMessage.Response) {
 
 	// Remove the prefix `/echo/` from the request path (e.g. `/echo/hello` -> `hello`)
 	str, found := strings.CutPrefix(req.Path, "/echo/")
 
 	// If the prefix is not found, set the response status to 404
 	if !found {
-		res.WithStatus(404)
+		res.WithStatus(http.StatusNotFound)
 		return
 	}
 
@@ -29,7 +30,7 @@ func Echo(req *http.Request, res *http.Response) {
 		// Encode the string using the gzip algorithm
 		gzStr, err := GZip(str)
 		if err != nil {
-			res.WithStatus(500)
+			res.WithStatus(http.StatusInternalServerError)
 			return
 		}
 		str = gzStr // Set the contents to the compressed string
@@ -43,7 +44,7 @@ func Echo(req *http.Request, res *http.Response) {
 
 	// Respond with the contents
 	res.
-		WithStatus(200).
+		WithStatus(http.StatusOK).
 		WithHeaders(map[string]string{
 			"Content-Type":   "text/plain",
 			"Content-Length": fmt.Sprintf("%d", len(str)),
