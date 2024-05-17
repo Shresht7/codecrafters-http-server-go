@@ -23,7 +23,8 @@ func Echo(req *http.Request, res *http.Response) {
 
 	// If the request contains the header "Accept-Encoding" with the value "gzip",
 	// set the response header "Content-Encoding" to "gzip"
-	if req.Headers.Check("Accept-Encoding", "gzip") {
+	acceptableEncodings, ok := req.Headers.Get("Accept-Encoding")
+	if ok && strings.Contains(acceptableEncodings, "gzip") {
 		res.WithHeaders(map[string]string{
 			"Content-Encoding": "gzip",
 		})
