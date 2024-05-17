@@ -1,6 +1,9 @@
 package http
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 // ----------
 // START LINE
@@ -31,8 +34,9 @@ func TestWithHeaders(t *testing.T) {
 
 	// Check if the headers are set correctly
 	for key, value := range headers {
-		if http.Headers[key] != value {
-			t.Errorf("Expected header value %s, but got %s", value, http.Headers[key])
+		h, ok := http.Headers.Get(key)
+		if !ok || h != value {
+			t.Errorf("Expected header value %s, but got %s", value, h)
 		}
 	}
 }
@@ -55,21 +59,23 @@ func TestWithHeadersMultiple(t *testing.T) {
 
 	// Check if the headers are set correctly
 	for key, value := range moreHeaders {
-		if http.Headers[key] != value {
-			t.Errorf("Expected header value %s, but got %s", value, http.Headers[key])
+		h, ok := http.Headers.Get(key)
+		if !ok || h != value {
+			t.Errorf("Expected header value %s, but got %s", value, h)
 		}
 	}
 
 	// Check if the previous headers are still set
 	for key, value := range headers {
-		if http.Headers[key] != value {
-			t.Errorf("Expected header value %s, but got %s", value, http.Headers[key])
+		h, ok := http.Headers.Get(key)
+		if !ok || h != value {
+			t.Errorf("Expected header value %s, but got %s", value, h)
 		}
 	}
 
 	// Check if the total number of headers is correct
-	if len(http.Headers) != 4 {
-		t.Errorf("Expected 4 headers, but got %d", len(http.Headers))
+	if http.Headers.Len() != 4 {
+		t.Errorf("Expected 4 headers, but got %d", http.Headers.Len())
 	}
 }
 
@@ -90,22 +96,17 @@ func TestWithHeadersOverride(t *testing.T) {
 
 	// Check if the headers are set correctly
 	for key, value := range updatedHeaders {
-		if http.Headers[key] != value {
-			t.Errorf("Expected header value %s, but got %s", value, http.Headers[key])
+		h, ok := http.Headers.Get(key)
+		if !ok || h != value {
+			t.Errorf("Expected header value %s, but got %s", value, h)
 		}
 	}
 
 	// Check if the total number of headers is correct
-	if len(http.Headers) != 2 {
-		t.Errorf("Expected 2 headers, but got %d", len(http.Headers))
+	if http.Headers.Len() != 2 {
+		t.Errorf("Expected 2 headers, but got %d", http.Headers.Len())
 	}
 
-	// Check if the previous headers are removed
-	for key := range headers {
-		if _, ok := http.Headers[key]; !ok {
-			t.Errorf("Expected header %s to be removed, but it is still present", key)
-		}
-	}
 }
 
 // ----
@@ -128,7 +129,14 @@ func TestWithBody(t *testing.T) {
 // -------------
 
 func TestParseMessage(t *testing.T) {
-	message := "GET / HTTP/1.1\r\nContent-Type: application/json\r\nAuthorization: Bearer token\r\n\r\n{\"key\": \"value\"}"
+	message := strings.Join([]string{
+		"GET / HTTP/1.1",
+		"Content-Type: application/json",
+		"Content-Length: 16",
+		"Authorization: Bearer token",
+		"",
+		"{\"key\": \"value\"}",
+	}, CRLF)
 
 	http := createHTTPMessage().ParseMessage(message)
 
@@ -138,15 +146,17 @@ func TestParseMessage(t *testing.T) {
 	}
 
 	// Check if the headers are set correctly
-	if http.Headers["Content-Type"] != "application/json" {
-		t.Errorf("Expected header Content-Type: application/json, but got %s", http.Headers["Content-Type"])
+	contentType, _ := http.Headers.Get("Content-Type")
+	if contentType != "application/json" {
+		t.Errorf("Expected header Content-Type: application/json, but got %s", contentType)
 	}
-	if http.Headers["Authorization"] != "Bearer token" {
-		t.Errorf("Expected header Authorization: Bearer token, but got %s", http.Headers["Authorization"])
+	authorization, _ := http.Headers.Get("Authorization")
+	if authorization != "Bearer token" {
+		t.Errorf("Expected header Authorization: Bearer token, but got %s", authorization)
 	}
 	// Check if the total number of headers is correct
-	if len(http.Headers) != 2 {
-		t.Errorf("Expected 2 headers, but got %d", len(http.Headers))
+	if http.Headers.Len() != 3 {
+		t.Errorf("Expected 2 headers, but got %d", http.Headers.Len())
 	}
 
 	// Check if the body is set correctly
@@ -156,7 +166,14 @@ func TestParseMessage(t *testing.T) {
 }
 
 func TestParseMessageText(t *testing.T) {
-	message := "GET / HTTP/1.1\r\nContent-Type: text/plain\r\n\r\nHello, World!"
+	// message := "GET / HTTP/1.1\r\nContent-Type: text/plain\r\n\r\nHello, World!"
+	message := strings.Join([]string{
+		"GET / HTTP/1.1",
+		"Content-Type: text/plain",
+		"Content-Length: 13",
+		"",
+		"Hello, World!",
+	}, CRLF)
 
 	http := createHTTPMessage().ParseMessage(message)
 
@@ -166,12 +183,13 @@ func TestParseMessageText(t *testing.T) {
 	}
 
 	// Check if the headers are set correctly
-	if http.Headers["Content-Type"] != "text/plain" {
-		t.Errorf("Expected header Content-Type: text/plain, but got %s", http.Headers["Content-Type"])
+	contentType, _ := http.Headers.Get("Content-Type")
+	if contentType != "text/plain" {
+		t.Errorf("Expected header Content-Type: text/plain, but got %s", contentType)
 	}
 	// Check if the total number of headers is correct
-	if len(http.Headers) != 1 {
-		t.Errorf("Expected 1 header, but got %d", len(http.Headers))
+	if http.Headers.Len() != 2 {
+		t.Errorf("Expected 1 header, but got %d", http.Headers.Len())
 	}
 
 	// Check if the body is set correctly
@@ -181,7 +199,13 @@ func TestParseMessageText(t *testing.T) {
 }
 
 func TestParseMessageHTML(t *testing.T) {
-	message := "GET /index.html HTTP/1.1\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html><html><head><title>Hello, World!</title></head><body><h1>Hello, World!</h1></body></html>"
+	message := strings.Join([]string{
+		"GET /index.html HTTP/1.1",
+		"Content-Type: text/html",
+		"Content-Length: 96",
+		"",
+		"<!DOCTYPE html><html><head><title>TITLE</title></head><body><h1>Hello, World!</h1></body></html>",
+	}, CRLF)
 
 	http := createHTTPMessage().ParseMessage(message)
 
@@ -191,17 +215,19 @@ func TestParseMessageHTML(t *testing.T) {
 	}
 
 	// Check if the headers are set correctly
-	if http.Headers["Content-Type"] != "text/html" {
-		t.Errorf("Expected header Content-Type: text/html, but got %s", http.Headers["Content-Type"])
+	contentType, _ := http.Headers.Get("Content-Type")
+	if contentType != "text/html" {
+		t.Errorf("Expected header Content-Type: text/html, but got %s", contentType)
 	}
 	// Check if the total number of headers is correct
-	if len(http.Headers) != 1 {
-		t.Errorf("Expected 1 header, but got %d", len(http.Headers))
+	if http.Headers.Len() != 2 {
+		t.Errorf("Expected 1 header, but got %d", http.Headers.Len())
 	}
 
 	// Check if the body is set correctly
-	if http.Body != "<!DOCTYPE html><html><head><title>Hello, World!</title></head><body><h1>Hello, World!</h1></body></html>" {
-		t.Errorf("Expected body <!DOCTYPE html><html><head><title>Hello, World!</title></head><body><h1>Hello, World!</h1></body></html>, but got %s", http.Body)
+	doc := "<!DOCTYPE html><html><head><title>TITLE</title></head><body><h1>Hello, World!</h1></body></html>"
+	if http.Body != doc {
+		t.Errorf("Expected body:\n\n"+doc+"\n\n", http.Body)
 	}
 }
 
@@ -216,15 +242,17 @@ func TestParseMessageWithNoBody(t *testing.T) {
 	}
 
 	// Check if the headers are set correctly
-	if http.Headers["Content-Type"] != "application/json" {
-		t.Errorf("Expected header Content-Type: application/json, but got %s", http.Headers["Content-Type"])
+	contentType, _ := http.Headers.Get("Content-Type")
+	if contentType != "application/json" {
+		t.Errorf("Expected header Content-Type: application/json, but got %s", contentType)
 	}
-	if http.Headers["Authorization"] != "Bearer token" {
-		t.Errorf("Expected header Authorization: Bearer token, but got %s", http.Headers["Authorization"])
+	authorization, _ := http.Headers.Get("Authorization")
+	if authorization != "Bearer token" {
+		t.Errorf("Expected header Authorization: Bearer token, but got %s", authorization)
 	}
 	// Check if the total number of headers is correct
-	if len(http.Headers) != 2 {
-		t.Errorf("Expected 2 headers, but got %d", len(http.Headers))
+	if http.Headers.Len() != 2 {
+		t.Errorf("Expected 2 headers, but got %d", http.Headers.Len())
 	}
 
 	// Check if the body is set correctly
@@ -251,6 +279,6 @@ func TestString(t *testing.T) {
 
 	// Check if the string representation is correct
 	if http.String() != expected {
-		t.Errorf("Expected string\n%s,\n\nbut got\n%s", expected, http.String())
+		t.Errorf("Expected string\n%s\n\nbut got\n%s", expected, http.String())
 	}
 }
