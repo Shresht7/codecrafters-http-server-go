@@ -67,25 +67,3 @@ func (h *Headers) String() string {
 	// Add an extra CRLF to separate the headers from the body
 	return strings.Join(fieldLines, CRLF) + CRLF
 }
-
-// Check if a header is present in the Headers object and its value matches any of the checks
-func (h *Headers) Check(key string, values ...string) bool {
-	// Get the value of the header
-	value, found := h.Get(key)
-	if !found {
-		return false // Return false, if the header is not present
-	}
-
-	if len(values) == 0 {
-		return true // Return true, if the header is present and no checks are provided
-	}
-
-	for _, v := range values {
-		if value == v {
-			return true // Return true, if the header is present and the value matches any of the checks
-		}
-	}
-
-	// Return false, if the header is present but the value does not match any of the checks
-	return false
-}
