@@ -19,12 +19,12 @@ func NewHeaders() *Headers {
 
 // Set a header in the Headers object
 func (h *Headers) Set(key, value string) {
-	h.hashmap[strings.ToLower(key)] = value
+	h.hashmap[key] = value
 }
 
 // Get a header from the Headers object
 func (h *Headers) Get(key string) (string, bool) {
-	value, found := h.hashmap[strings.ToLower(key)]
+	value, found := h.hashmap[key]
 	return value, found
 }
 
@@ -36,7 +36,7 @@ func (h *Headers) Contains(key string) bool {
 
 // Delete a header from the Headers object
 func (h *Headers) Delete(key string) {
-	delete(h.hashmap, strings.ToLower(key))
+	delete(h.hashmap, key)
 }
 
 // Returns the length of the Headers object
