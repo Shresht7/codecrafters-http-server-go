@@ -28,7 +28,7 @@ func Echo(req *http.Request, res *http.Response) {
 			"Content-Encoding": "gzip",
 		})
 	}
-
+	// test
 	// Set the response status to 200, content type to "text/plain",
 	// content length to the length of the string, and body to the string
 	res.
