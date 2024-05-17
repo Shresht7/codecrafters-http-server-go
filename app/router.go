@@ -3,6 +3,7 @@ package main
 import (
 	"strings"
 
+	handle "github.com/codecrafters-io/http-server-starter-go/app/handlers"
 	"github.com/codecrafters-io/http-server-starter-go/pkg/http"
 )
 
@@ -12,11 +13,11 @@ func route(req *http.Request, res *http.Response) {
 	case req.Path == "/":
 		res.WithStatus(200)
 	case strings.HasPrefix(req.Path, "/files/"):
-		handleFile(req, res)
+		handle.Files(req, res)
 	case req.Path == "/user-agent":
-		handleUserAgent(req, res)
+		handle.UserAgent(req, res)
 	case strings.HasPrefix(req.Path, "/echo/"):
-		handleEcho(req, res)
+		handle.Echo(req, res)
 	default:
 		res.WithStatus(404)
 	}
