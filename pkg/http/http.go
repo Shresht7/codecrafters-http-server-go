@@ -2,6 +2,7 @@ package http
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -71,8 +72,19 @@ func (r *HTTPMessage) ParseMessage(message string) *HTTPMessage {
 		r.Headers[parts[0]] = parts[1]
 	}
 
-	// The remainder of the message is the body
-	r.Body = s[len(s)-1]
+	// Get the Content-Length header
+	contentLengthStr, ok := r.Headers["Content-Length"]
+	if !ok {
+		return r
+	}
+	// Parse the Content-Length header as an integer
+	contentLength, err := strconv.Atoi(contentLengthStr)
+	if err != nil {
+		return r
+	}
+
+	// The body is the last part of the message and is of length Content-Length
+	r.Body = s[len(s)-1][:contentLength]
 
 	return r
 }
