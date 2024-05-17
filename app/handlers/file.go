@@ -30,6 +30,8 @@ func Files(req *http.Request, res *http.Response) {
 	switch req.Method {
 	case "GET":
 		GetFile(req, res, filePath)
+	case "POST":
+		PostFile(req, res, filePath)
 	default:
 		res.WithStatus(405) // Method Not Allowed
 	}
@@ -62,6 +64,31 @@ func GetFile(req *http.Request, res *http.Response, filePath string) {
 		"Content-Length": fmt.Sprintf("%d", len(content)),
 	}).WithBody(string(content))
 
+}
+
+// Handles the POST method for the /files/{name} endpoint
+func PostFile(req *http.Request, res *http.Response, filePath string) {
+	// Check if the file already exists, and create it if it doesn't
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		_, err := os.Create(filePath)
+		if err != nil {
+			res.WithStatus(500).WithBody("Internal Server Error: Could not create file")
+			return
+		}
+	}
+
+	// Read the request body
+	fileContents := req.Body
+
+	// Write the file content
+	err := os.WriteFile(filePath, []byte(fileContents), 0644)
+	if err != nil {
+		res.WithStatus(500).WithBody("Internal Server Error: Could not write file")
+		return
+	}
+
+	// Set the response status to 201
+	res.WithStatus(201).WithBody("File created successfully")
 }
 
 // ----------------
