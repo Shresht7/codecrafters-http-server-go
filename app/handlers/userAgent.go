@@ -12,7 +12,7 @@ import (
 func UserAgent(req *http.Request, res *http.Response) {
 
 	// Extract the User-Agent header from the request headers
-	userAgent, ok := req.Headers["User-Agent"]
+	userAgent, ok := req.Headers.Get("User-Agent")
 
 	// If the User-Agent header is not found, set the response status to 404
 	if !ok {

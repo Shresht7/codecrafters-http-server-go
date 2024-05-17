@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -19,9 +18,9 @@ const CRLF = "\r\n"
 type HTTPMessage struct {
 	protocol string // The protocol version (e.g. `HTTP/1.1`)
 
-	StartLine string            // The first line of the HTTP Request/Response
-	Headers   map[string]string // The heeders of the HTTP Request/Response
-	Body      string            // The body of the HTTP Request/Response
+	StartLine string   // The first line of the HTTP Request/Response
+	Headers   *Headers // The heeders of the HTTP Request/Response
+	Body      string   // The body of the HTTP Request/Response
 
 	separator string // The sequence of characters that separate the startLine, headers and the body
 }
@@ -30,7 +29,7 @@ type HTTPMessage struct {
 func createHTTPMessage() *HTTPMessage {
 	return &HTTPMessage{
 		protocol:  "HTTP/1.1",
-		Headers:   make(map[string]string),
+		Headers:   NewHeaders(),
 		separator: CRLF,
 	}
 }
@@ -44,7 +43,7 @@ func (r *HTTPMessage) WithStartLine(startLine string) *HTTPMessage {
 // Set the headers of the HTTP Request/Response Message
 func (r *HTTPMessage) WithHeaders(headers map[string]string) *HTTPMessage {
 	for key, value := range headers {
-		r.Headers[key] = value
+		r.Headers.Set(key, value)
 	}
 	return r
 }
@@ -69,11 +68,11 @@ func (r *HTTPMessage) ParseMessage(message string) *HTTPMessage {
 			break // Stop when an empty line is encountered
 		}
 		parts := strings.Split(line, ": ") // Split the line into field-value pairs
-		r.Headers[parts[0]] = parts[1]
+		r.Headers.Set(parts[0], parts[1])  // Add the field-value pair to the headers
 	}
 
 	// Get the Content-Length header
-	contentLengthStr, ok := r.Headers["Content-Length"]
+	contentLengthStr, ok := r.Headers.Get("Content-Length")
 	if !ok {
 		return r
 	}
@@ -89,21 +88,11 @@ func (r *HTTPMessage) ParseMessage(message string) *HTTPMessage {
 	return r
 }
 
-// Generate a string representation of the Headers
-func (r *HTTPMessage) headersString() string {
-	fieldLines := make([]string, 0, len(r.Headers))
-	for key, value := range r.Headers {
-		fieldLines = append(fieldLines, fmt.Sprintf("%s: %s", key, value))
-	}
-	// Add an extra CRLF to separate the headers from the body
-	return strings.Join(fieldLines, r.separator) + r.separator
-}
-
 // The string representation of the HTTP Request/Response
 func (r *HTTPMessage) String() string {
 	return strings.Join([]string{
 		r.StartLine,
-		r.headersString(),
+		r.Headers.String(),
 		r.Body,
 	}, r.separator)
 }
