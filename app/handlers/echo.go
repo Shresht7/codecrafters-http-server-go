@@ -23,21 +23,23 @@ func Echo(req *http.Request, res *http.Response) {
 		return
 	}
 
+	// The content to be sent in the response
+	content := str
+
 	// If the request contains the header "Accept-Encoding" with the value "gzip",
 	// set the response header "Content-Encoding" to "gzip"
 	acceptableEncodings, ok := req.Headers.Get("Accept-Encoding")
 	if ok && strings.Contains(acceptableEncodings, "gzip") {
+		// Encode the string using the gzip algorithm
+		encodedStr, err := GZip(str)
+		if err != nil {
+			res.WithStatus(500)
+			return
+		}
+		content = string(encodedStr)
 		res.WithHeaders(map[string]string{
 			"Content-Encoding": "gzip",
 		})
-	}
-
-	// Encode the string using the gzip algorithm
-	// and set the response body to the encoded string
-	content, err := GZip(str)
-	if err != nil {
-		res.WithStatus(500)
-		return
 	}
 
 	// Set the response status to 200, content type to "text/plain",
