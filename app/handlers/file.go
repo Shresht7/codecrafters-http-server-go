@@ -10,14 +10,14 @@ import (
 	httpMessage "github.com/codecrafters-io/http-server-starter-go/pkg/http"
 )
 
-// Files handles requests to the /files/{name} endpoint
-// It reads the file content from the --directory and returns it as the response body
+// Handles the `/files/{name}` endpoint
+// Reads the file content from the --directory and returns it as the response body.
 func Files(req *httpMessage.Request, res *httpMessage.Response) {
 
 	// Get the --directory from the arguments
 	directory := GetDirectoryFromArguments()
 
-	// Cut the prefix "/files/" from the request path
+	// Cut the prefix "/files/" from the request path (e.g. "/files/hello.txt" -> "hello.txt")
 	fileName, found := strings.CutPrefix(req.Path, "/files/")
 	if !found {
 		res.WithStatus(http.StatusNotFound)
@@ -58,8 +58,7 @@ func GetFile(req *httpMessage.Request, res *httpMessage.Response, filePath strin
 		return
 	}
 
-	// Set the response status to 200, content type to "application/octet-stream",
-	// content length to the length of the file content, and body to the file content
+	// Respond with the file content
 	res.WithStatus(http.StatusOK).WithHeaders(map[string]string{
 		"Content-Type":   "application/octet-stream",
 		"Content-Length": fmt.Sprintf("%d", len(content)),
@@ -88,7 +87,7 @@ func PostFile(req *httpMessage.Request, res *httpMessage.Response, filePath stri
 		return
 	}
 
-	// Set the response status to 201
+	// Respond with a success message
 	res.WithStatus(http.StatusCreated).WithBody("File created successfully")
 }
 
