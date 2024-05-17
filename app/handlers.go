@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"path"
 	"strings"
 
 	"github.com/codecrafters-io/http-server-starter-go/pkg/http"
@@ -54,4 +56,39 @@ func handleUserAgent(req *http.Request, res *http.Response) {
 			"Content-Length": fmt.Sprintf("%d", len(userAgent)),
 		}).
 		WithBody(userAgent)
+}
+
+func handleFile(req *http.Request, res *http.Response) {
+	// Get the --directory from the arguments
+	directory := GetDirectoryFromArguments()
+
+	// Cut the prefix "/files/" from the request path
+	fileName, found := strings.CutPrefix(req.Path, "/files/")
+	if !found {
+		res.WithStatus(404)
+		return
+	}
+
+	// Construct the full file path
+	filePath := path.Join(directory, fileName)
+
+	// Check if the file exists
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		res.WithStatus(404)
+		return
+	}
+
+	// Read the file content
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		res.WithStatus(500).WithBody("Internal Server Error: Could not read file")
+		return
+	}
+
+	// Set the response status to 200, content type to "application/octet-stream",
+	// content length to the length of the file content, and body to the file content
+	res.WithStatus(200).WithHeaders(map[string]string{
+		"Content-Type":   "application/octet-stream",
+		"Content-Length": fmt.Sprintf("%d", len(content)),
+	}).WithBody(string(content))
 }
