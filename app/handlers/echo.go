@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"bytes"
+	"compress/gzip"
 	"fmt"
 	"strings"
 
@@ -29,15 +31,39 @@ func Echo(req *http.Request, res *http.Response) {
 			"Content-Encoding": "gzip",
 		})
 	}
-	// test
+
+	// Encode the string using the gzip algorithm
+	// and set the response body to the encoded string
+	content, err := GZip(str)
+	if err != nil {
+		res.WithStatus(500)
+		return
+	}
+
 	// Set the response status to 200, content type to "text/plain",
 	// content length to the length of the string, and body to the string
 	res.
 		WithStatus(200).
 		WithHeaders(map[string]string{
 			"Content-Type":   "text/plain",
-			"Content-Length": fmt.Sprintf("%d", len(str)),
+			"Content-Length": fmt.Sprintf("%d", len(content)),
 		}).
-		WithBody(str)
+		WithBody(string(content))
 
+}
+
+// Return the gzip encoded version of the string
+func GZip(str string) ([]byte, error) {
+
+	var buf bytes.Buffer       // Create a buffer to store the compressed data
+	gz := gzip.NewWriter(&buf) // Create a new gzip writer
+	defer gz.Close()           // Close the gzip writer when the function returns
+
+	// Write the string to the gzip writer
+	if _, err := gz.Write([]byte(str)); err != nil {
+		return nil, err
+	}
+
+	// Flush the gzip writer
+	return buf.Bytes(), nil
 }
