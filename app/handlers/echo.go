@@ -21,6 +21,14 @@ func Echo(req *http.Request, res *http.Response) {
 		return
 	}
 
+	// If the request contains the header "Accept-Encoding" with the value "gzip",
+	// set the response header "Content-Encoding" to "gzip"
+	if req.Headers["Accept-Encoding"] == "gzip" {
+		res.WithHeaders(map[string]string{
+			"Content-Encoding": "gzip",
+		})
+	}
+
 	// Set the response status to 200, content type to "text/plain",
 	// content length to the length of the string, and body to the string
 	res.
