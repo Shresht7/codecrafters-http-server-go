@@ -287,6 +287,6 @@ func TestString(t *testing.T) {
 
 	// Check if the string representation is correct
 	if http.String() != expected {
-		t.Errorf("Expected string\n%s\n\nbut got\n%s", expected, http.String())
+		t.Errorf("Expected string\n%s\n\nbut got\n%s", strings.TrimSpace(expected), http.String())
 	}
 }
