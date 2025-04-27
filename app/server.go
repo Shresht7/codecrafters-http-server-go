@@ -73,5 +73,8 @@ func handleConnection(conn net.Conn) {
 		// Respond to the connection
 		conn.Write(response.Bytes())
 
+		if shouldClose {
+			break // Close the connection
+		}
 	}
 }
