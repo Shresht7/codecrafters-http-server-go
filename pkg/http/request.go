@@ -48,7 +48,11 @@ func ParseRequest(conn net.Conn) *Request {
 			fmt.Println("Error reading header line: ", err.Error())
 			return nil
 		}
-		parts := strings.Split(line, ": ")      // Split the line into field-value pairs
+		parts := strings.Split(line, ": ") // Split the line into field-value pairs
+		if len(parts) != 2 {
+			fmt.Println("Failed to parse header line: ", line)
+			return nil
+		}
 		request.Headers.Set(parts[0], parts[1]) // Add the field-value pair to the headers
 	}
 
