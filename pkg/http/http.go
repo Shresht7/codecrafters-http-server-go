@@ -90,6 +90,13 @@ func (r *HTTPMessage) ParseMessage(message string) *HTTPMessage {
 
 // The string representation of the HTTP Request/Response
 func (r *HTTPMessage) String() string {
+	// If the body is empty, return the startLine and headers only
+	if r.Body == "" || r.Body == CRLF {
+		return strings.Join([]string{
+			r.StartLine,
+			r.Headers.String(),
+		}, r.separator)
+	}
 	return strings.Join([]string{
 		r.StartLine,
 		r.Headers.String(),
