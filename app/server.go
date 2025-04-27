@@ -40,12 +40,20 @@ func handleConnection(conn net.Conn) {
 	// Close the connection when the function returns
 	defer conn.Close()
 
-	// Setup a persistent connection until we get a "connection-close"
+	// Setup a persistent connection until we get a "Connection: close" header or error
+	// This is a simple implementation of HTTP/1.1 persistent connections
 	for {
 		// Parse the HTTP Request from the connection
 		request := http.ParseRequest(conn)
 		if request == nil {
 			break // Break out of the persistent connection if request is nil
+		}
+
+		// Whether to close the connection or not
+		var shouldClose bool
+		// Close the connection if the `Connection: close` header was passed in
+		if val, ok := request.Headers.Get("Connection"); ok && val == "close" {
+			shouldClose = true
 		}
 
 		// Print the request
@@ -54,15 +62,10 @@ func handleConnection(conn net.Conn) {
 		// Create the HTTP Response
 		response := http.CreateResponse()
 
-		var shouldClose bool
-		// Close the connection if the `Connection: close` header was passed in
-		if val, ok := request.Headers.Get("Connection"); ok && val == "close" {
-			shouldClose = true
-		}
-
 		// Route the request based on the requested path
 		route(request, response)
 
+		// Set the `Connection: close` header if the connection should be closed
 		if shouldClose {
 			response.Headers.Set("Connection", "close")
 		}
@@ -73,8 +76,9 @@ func handleConnection(conn net.Conn) {
 		// Respond to the connection
 		conn.Write(response.Bytes())
 
+		// Close the connection if the `Connection: close` header was set
 		if shouldClose {
-			break // Close the connection
+			break
 		}
 	}
 }

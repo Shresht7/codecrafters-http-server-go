@@ -31,6 +31,6 @@ func (r *Response) WithStatus(code int) *Response {
 	text := http.StatusText(code)
 	codeStr := strconv.Itoa(code)
 	statusMsg := strings.Join([]string{r.protocol, codeStr, text}, " ")
-	r.WithStartLine(strings.TrimSpace(statusMsg))
+	r.WithStartLine(statusMsg)
 	return r
 }
