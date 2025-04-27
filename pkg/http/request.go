@@ -41,6 +41,7 @@ func ParseRequest(conn net.Conn) *Request {
 	// Read each header field into a hash table by field name until we hit an empty line
 	for {
 		line, err := reader.ReadString('\n')
+		line = strings.TrimSpace(line) // Trim extra-whitespace
 		if line == "\r\n" || line == "" {
 			break // Empty line is the delimiter between header and body
 		}
