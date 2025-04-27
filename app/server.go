@@ -54,8 +54,18 @@ func handleConnection(conn net.Conn) {
 		// Create the HTTP Response
 		response := http.CreateResponse()
 
+		var shouldClose bool
+		// Close the connection if the `Connection: close` header was passed in
+		if val, ok := request.Headers.Get("Connection"); ok && val == "close" {
+			shouldClose = true
+		}
+
 		// Route the request based on the requested path
 		route(request, response)
+
+		if shouldClose {
+			response.Headers.Set("Connection", "close")
+		}
 
 		// Print the response
 		fmt.Println("Response:\n", response.String())
@@ -63,9 +73,5 @@ func handleConnection(conn net.Conn) {
 		// Respond to the connection
 		conn.Write(response.Bytes())
 
-		// Close the connection if the `Connection: close` header was passed in
-		if val, ok := request.Headers.Get("Connection"); ok && val == "close" {
-			break // Close the connection
-		}
 	}
 }
