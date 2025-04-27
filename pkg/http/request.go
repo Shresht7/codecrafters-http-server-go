@@ -35,7 +35,7 @@ func ParseRequest(conn net.Conn) *Request {
 		fmt.Println("Error reading request line: ", err.Error())
 		return nil
 	}
-	request.StartLine = startLine
+	request.StartLine = strings.TrimSpace(startLine)
 	request.parseRequestLine()
 
 	// Read each header field into a hash table by field name until we hit an empty line
