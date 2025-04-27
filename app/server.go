@@ -62,5 +62,10 @@ func handleConnection(conn net.Conn) {
 
 		// Respond to the connection
 		conn.Write(response.Bytes())
+
+		// Close the connection if the `Connection: close` header was passed in
+		if val, ok := request.Headers.Get("Connection"); ok && val == "close" {
+			break // Close the connection
+		}
 	}
 }
