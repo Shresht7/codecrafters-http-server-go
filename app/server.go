@@ -40,21 +40,27 @@ func handleConnection(conn net.Conn) {
 	// Close the connection when the function returns
 	defer conn.Close()
 
-	// Parse the HTTP Request from the connection
-	request := http.ParseRequest(conn)
+	// Setup a persistent connection until we get a "connection-close"
+	for {
+		// Parse the HTTP Request from the connection
+		request := http.ParseRequest(conn)
+		if request == nil {
+			break // Break out of the persistent connection if request is nil
+		}
 
-	// Print the request
-	fmt.Printf("Request:\n%+v\n", request)
+		// Print the request
+		fmt.Printf("Request:\n%+v\n", request)
 
-	// Create the HTTP Response
-	response := http.CreateResponse()
+		// Create the HTTP Response
+		response := http.CreateResponse()
 
-	// Route the request based on the requested path
-	route(request, response)
+		// Route the request based on the requested path
+		route(request, response)
 
-	// Print the response
-	fmt.Println("Response:\n", response.String())
+		// Print the response
+		fmt.Println("Response:\n", response.String())
 
-	// Respond to the connection
-	conn.Write(response.Bytes())
+		// Respond to the connection
+		conn.Write(response.Bytes())
+	}
 }
