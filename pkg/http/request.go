@@ -1,8 +1,11 @@
 package http
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"net"
+	"strconv"
 	"strings"
 )
 
@@ -20,14 +23,49 @@ func ParseRequest(conn net.Conn) *Request {
 		HTTPMessage: createHTTPMessage(),
 	}
 
-	// Read the incoming connection and retrieve the request message
-	msg := readConnection(conn)
+	// Create a buffered reader to read the connection
+	reader := bufio.NewReader(conn)
 
-	// Parse the incoming message
-	request.ParseMessage(msg)
-
-	// Parse the Method and Path from the request line
+	// Read and parse the request line
+	startLine, err := reader.ReadString('\n')
+	if err == io.EOF {
+		return nil // End of connection stream. Connection closed
+	}
+	if err != nil {
+		fmt.Println("Error reading request line: ", err.Error())
+		return nil
+	}
+	request.StartLine = startLine
 	request.parseRequestLine()
+
+	// Read each header field into a hash table by field name until we hit an empty line
+	for {
+		line, err := reader.ReadString('\n')
+		if line == "" {
+			break // Empty line is the delimiter between header and body
+		}
+		if err != nil {
+			fmt.Println("Error reading header line: ", err.Error())
+			return nil
+		}
+		parts := strings.Split(line, ": ")      // Split the line into field-value pairs
+		request.Headers.Set(parts[0], parts[1]) // Add the field-value pair to the headers
+	}
+
+	// Get the Content-Length header
+	contentLengthStr, ok := request.Headers.Get("Content-Length")
+	if !ok {
+		return request
+	}
+	contentLength, err := strconv.Atoi(contentLengthStr)
+	if err != nil {
+		return request
+	}
+
+	// The body is the last part of the message and is of Content-Length
+	buf := make([]byte, contentLength)
+	reader.Read(buf)
+	request.Body = string(buf)
 
 	return request
 }
@@ -38,26 +76,4 @@ func (r *Request) parseRequestLine() {
 	r.Method = s[0]
 	r.Path = s[1]
 	r.protocol = s[2]
-}
-
-// ----------------
-// HELPER FUNCTIONS
-// ----------------
-
-// Read the incoming connection and return the request message
-func readConnection(conn net.Conn) string {
-	// Read the incoming HTTP request
-	// reqMsg, err := io.ReadAll(conn)
-	// Note: io.ReadAll() expects an EOF to stop reading
-	// The HTTP request here does not have an EOF, so this was throwing an error
-	// and causing the tests to fail.
-	// The following is a makeshift solution.
-	// TODO: Find a better way to do this
-	buf := make([]byte, 512)
-	_, err := conn.Read(buf)
-	if err != nil {
-		fmt.Println("Error reading request from connection: ", err.Error())
-	}
-	msg := string(buf)
-	return msg
 }
